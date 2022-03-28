@@ -1,6 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from .augmentations import (AudioAmplify, CenterCrop, ColorJitter, Flip, Fuse,
-                            EntityBoxCrop, EntityBoxFlip, EntityBoxRescale,
                             Imgaug, MelSpectrogram, MultiScaleCrop, Normalize,
                             PytorchVideoTrans, RandomCrop, RandomRescale, RandomErasing,
                             RandomRescale, RandomResizedCrop, Resize, TenCrop, ThreeCrop,
@@ -35,7 +34,6 @@ __all__ = [
     'AudioAmplify', 'MelSpectrogram', 'AudioDecode', 'FormatAudioShape',
     'LoadAudioFeature', 'AudioFeatureSelector', 'AudioDecodeInit',
     'ImageDecode', 'BuildPseudoClip', 'RandomRescale',
-    'EntityBoxFlip', 'EntityBoxCrop', 'EntityBoxRescale',
     'PyAVDecodeMotionVector', 'Rename', 'Imgaug', 'UniformSampleFrames',
     'PoseDecode', 'LoadKineticsPose', 'GeneratePoseTarget', 'PIMSInit',
     'PIMSDecode', 'TorchvisionTrans', 'PytorchVideoTrans', 'PoseNormalize',
