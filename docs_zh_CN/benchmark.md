@@ -34,7 +34,7 @@
 
 为了公平比较，这里基于相同的硬件环境和数据进行对比实验。
 使用的视频帧数据集是通过 [数据准备工具](/tools/data/kinetics/README.md) 生成的，
-使用的视频数据集是通过 [该脚本](/tools/data/resize_video.py) 生成的，以快速解码为特点的，"短边 256，密集关键帧编码“的视频数据集。
+使用的视频数据集是通过 [该脚本](/tools/data/resize_videos.py) 生成的，以快速解码为特点的，"短边 256，密集关键帧编码“的视频数据集。
 正如以下表格所示，在对比正常的短边 256 视频时，可以观察到速度上的显著提升，尤其是在采样特别稀疏的情况下，如 [TSN](/configs/recognition/tsn/tsn_r50_video_320p_1x1x3_100e_kinetics400_rgb.py)。
 
 ## 主要结果
@@ -44,8 +44,8 @@
 | 模型  |输入| IO 后端 | 批大小 x GPU 数量 | MMAction2 (s/iter) | GPU 显存占用 (GB) | MMAction (s/iter)| GPU 显存占用 (GB) | Temporal-Shift-Module (s/iter) | GPU 显存占用 (GB) | PySlowFast (s/iter)| GPU 显存占用 (GB) |
 | :--- | :---------------:|:---------------:| :---------------:| :---------------:  | :--------------------: | :----------------------------: | :-----------------: |:-----------------: |:-----------------: |:-----------------: |:-----------------: |
 | [TSN](/configs/recognition/tsn/tsn_r50_1x1x3_100e_kinetics400_rgb.py)| 256p rawframes |Memcached| 32x8|**[0.32](https://download.openmmlab.com/mmaction/benchmark/recognition/mmaction2/tsn_256p_rawframes_memcahed_32x8.zip)** | 8.1 |[0.38](https://download.openmmlab.com/mmaction/benchmark/recognition/mmaction/tsn_256p_rawframes_memcached_32x8.zip)|8.1| [0.42](https://download.openmmlab.com/mmaction/benchmark/recognition/temporal_shift_module/tsn_256p_rawframes_memcached_32x8.zip)|10.5 | x |x |
-| [TSN](/configs/recognition/tsn/tsn_r50_video_1x1x3_100e_kinetics400_rgb.py)| 256p videos |Disk| 32x8|**[1.42](https://download.openmmlab.com/mmaction/benchmark/recognition/mmaction2/tsn_256p_videos_disk_32x8.zip)** | 8.1 | x |x |x| x | TODO |TODO|
-| [TSN](/configs/recognition/tsn/tsn_r50_video_1x1x3_100e_kinetics400_rgb.py)| 256p dense-encoded video |Disk| 32x8|**[0.61](https://download.openmmlab.com/mmaction/benchmark/recognition/mmaction2/tsn_256p_fast_videos_disk_32x8.zip)**|8.1 | x |x| x |x| TODO |TODO|
+| [TSN](/configs/recognition/tsn/tsn_r50_1x1x3_100e_kinetics400_rgb.py)| 256p videos |Disk| 32x8|**[1.42](https://download.openmmlab.com/mmaction/benchmark/recognition/mmaction2/tsn_256p_videos_disk_32x8.zip)** | 8.1 | x |x |x| x | TODO |TODO|
+| [TSN](/configs/recognition/tsn/tsn_r50_1x1x3_100e_kinetics400_rgb.py)| 256p dense-encoded video |Disk| 32x8|**[0.61](https://download.openmmlab.com/mmaction/benchmark/recognition/mmaction2/tsn_256p_fast_videos_disk_32x8.zip)**|8.1 | x |x| x |x| TODO |TODO|
 |[I3D heavy](/configs/recognition/i3d/i3d_r50_video_heavy_8x8x1_100e_kinetics400_rgb.py)|256p videos|Disk |8x8| **[0.34](https://download.openmmlab.com/mmaction/benchmark/recognition/mmaction2/i3d_heavy_256p_videos_disk_8x8.zip)** |4.6|x |x| x |x| [0.44](https://download.openmmlab.com/mmaction/benchmark/recognition/pyslowfast/pysf_i3d_r50_8x8_video.log) |4.6|
 |[I3D heavy](/configs/recognition/i3d/i3d_r50_video_heavy_8x8x1_100e_kinetics400_rgb.py)|256p dense-encoded video|Disk |8x8| **[0.35](https://download.openmmlab.com/mmaction/benchmark/recognition/mmaction2/i3d_heavy_256p_fast_videos_disk_8x8.zip)**| 4.6 | x | x | x | x | [0.36](https://download.openmmlab.com/mmaction/benchmark/recognition/pyslowfast/pysf_i3d_r50_8x8_fast_video.log) |4.6|
 | [I3D](/configs/recognition/i3d/i3d_r50_32x2x1_100e_kinetics400_rgb.py)|256p rawframes|Memcached|8x8| **[0.43](https://download.openmmlab.com/mmaction/benchmark/recognition/mmaction2/i3d_256p_rawframes_memcahed_8x8.zip)**|5.0 | [0.56](https://download.openmmlab.com/mmaction/benchmark/recognition/mmaction/i3d_256p_rawframes_memcached_8x8.zip)|5.0| x |x| x |x|

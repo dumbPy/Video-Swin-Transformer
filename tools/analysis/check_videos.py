@@ -1,12 +1,13 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 import argparse
 import os
 import warnings
 from functools import partial
 from multiprocessing import Manager, Pool, cpu_count
 
+import mmcv
 import numpy as np
 from mmcv import Config, DictAction
-from tqdm import tqdm
 
 from mmaction.datasets import PIPELINES, build_dataset
 
@@ -126,7 +127,7 @@ if __name__ == '__main__':
 
     # prepare for checking
     if os.path.exists(args.output_file):
-        # remove exsiting output file
+        # remove existing output file
         os.remove(args.output_file)
     pool = Pool(args.num_processes)
     lock = Manager().Lock()
@@ -134,8 +135,9 @@ if __name__ == '__main__':
     ids = range(len(dataset))
 
     # start checking
-    for _ in tqdm(pool.imap_unordered(worker_fn, ids), total=len(ids)):
-        pass
+    prog_bar = mmcv.ProgressBar(len(dataset))
+    for _ in pool.imap_unordered(worker_fn, ids):
+        prog_bar.update()
     pool.close()
     pool.join()
 

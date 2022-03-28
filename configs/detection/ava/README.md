@@ -1,33 +1,24 @@
 # AVA
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/open-mmlab/mmaction2/master/docs/imgs/spatio-temporal-det.gif" width="800px"/>
-</div>
-
-## Introduction
-
-<!-- [DATASET] -->
-
-```BibTeX
-@inproceedings{gu2018ava,
-  title={Ava: A video dataset of spatio-temporally localized atomic visual actions},
-  author={Gu, Chunhui and Sun, Chen and Ross, David A and Vondrick, Carl and Pantofaru, Caroline and Li, Yeqing and Vijayanarasimhan, Sudheendra and Toderici, George and Ricco, Susanna and Sukthankar, Rahul and others},
-  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
-  pages={6047--6056},
-  year={2018}
-}
-```
+[Ava: A video dataset of spatio-temporally localized atomic visual actions](https://openaccess.thecvf.com/content_cvpr_2018/html/Gu_AVA_A_Video_CVPR_2018_paper.html)
 
 <!-- [ALGORITHM] -->
 
-```BibTeX
-@article{duan2020omni,
-  title={Omni-sourced Webly-supervised Learning for Video Recognition},
-  author={Duan, Haodong and Zhao, Yue and Xiong, Yuanjun and Liu, Wentao and Lin, Dahua},
-  journal={arXiv preprint arXiv:2003.13042},
-  year={2020}
-}
-```
+<div align="center">
+  <img src="https://github.com/open-mmlab/mmaction2/raw/master/resources/spatio-temporal-det.gif" width="800px"/>
+</div>
+
+## Abstract
+
+<!-- [ABSTRACT] -->
+
+This paper introduces a video dataset of spatio-temporally localized Atomic Visual Actions (AVA). The AVA dataset densely annotates 80 atomic visual actions in 430 15-minute video clips, where actions are localized in space and time, resulting in 1.58M action labels with multiple labels per person occurring frequently. The key characteristics of our dataset are: (1) the definition of atomic visual actions, rather than composite actions; (2) precise spatio-temporal annotations with possibly multiple annotations for each person; (3) exhaustive annotation of these atomic actions over 15-minute video clips; (4) people temporally linked across consecutive segments; and (5) using movies to gather a varied set of action representations. This departs from existing datasets for spatio-temporal action recognition, which typically provide sparse annotations for composite actions in short video clips. We will release the dataset publicly.
+AVA, with its realistic scene and action complexity, exposes the intrinsic difficulty of action recognition. To benchmark this, we present a novel approach for action localization that builds upon the current state-of-the-art methods, and demonstrates better performance on JHMDB and UCF101-24 categories. While setting a new state of the art on existing datasets, the overall results on AVA are low at 15.6% mAP, underscoring the need for developing new approaches for video understanding.
+
+<!-- [IMAGE] -->
+<div align=center>
+<img src="https://user-images.githubusercontent.com/34324155/143015933-36eb7abd-d38f-4be6-a327-4d34c6f4edc1.png" width="800"/>
+</div>
 
 <!-- [ALGORITHM] -->
 
@@ -41,7 +32,7 @@
 }
 ```
 
-## Model Zoo
+## Results and Models
 
 ### AVA2.1
 
@@ -65,12 +56,14 @@
 | [slowfast_temporal_max_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb](/configs/detection/ava/slowfast_temporal_max_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb.py) |   RGB    | Kinetics-400 | ResNet50 | 32x2  |  8   | 26.4 | [log](https://download.openmmlab.com/mmaction/detection/ava/slowfast_temporal_max_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb/slowfast_temporal_max_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb.log) | [json](https://download.openmmlab.com/mmaction/detection/ava/slowfast_temporal_max_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb/slowfast_temporal_max_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb.json) | [ckpt](https://download.openmmlab.com/mmaction/detection/ava/slowfast_temporal_max_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb/slowfast_temporal_max_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb-874e0845.pth) |
 | [slowfast_temporal_max_focal_alpha3_gamma1_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb](/configs/detection/ava/slowfast_temporal_max_focal_alpha3_gamma1_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb.py) |   RGB    | Kinetics-400 | ResNet50 | 32x2  |  8   | 26.8 | [log](https://download.openmmlab.com/mmaction/detection/ava/slowfast_temporal_max_focal_alpha3_gamma1_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb/slowfast_temporal_max_focal_alpha3_gamma1_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb.log) | [json](https://download.openmmlab.com/mmaction/detection/ava/slowfast_temporal_max_focal_alpha3_gamma1_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb/slowfast_temporal_max_focal_alpha3_gamma1_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb.json) | [ckpt](https://download.openmmlab.com/mmaction/detection/ava/slowfast_temporal_max_focal_alpha3_gamma1_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb/slowfast_temporal_max_focal_alpha3_gamma1_kinetics_pretrained_r50_8x8x1_cosine_10e_ava22_rgb-345618cd.pth) |
 
-- Notes:
+:::{note}
 
 1. The **gpus** indicates the number of gpu we used to get the checkpoint.
    According to the [Linear Scaling Rule](https://arxiv.org/abs/1706.02677), you may set the learning rate proportional to the batch size if you use different GPUs or videos per GPU,
    e.g., lr=0.01 for 4 GPUs x 2 video/gpu and lr=0.08 for 16 GPUs x 4 video/gpu.
 2. **Context** indicates that using both RoI feature and global pooled feature for classification, which leads to around 1% mAP improvement in general.
+
+:::
 
 For more details on data preparation, you can refer to AVA in [Data Preparation](/docs/data_preparation.md).
 
@@ -97,7 +90,7 @@ You can train custom classes from ava. Ava suffers from class imbalance. There a
 Three steps to train custom classes:
 
 - Step 1: Select custom classes from original classes, named `custom_classes`. Class `0` should not be selected since it is reserved for further usage (to identify whether a proposal is positive or negative, not implemented yet) and will be added automatically.
-- Step 2: Set `num_classes`. In order to be compatible with current codes, plase make sure `num_classes == len(custom_classes) + 1`.
+- Step 2: Set `num_classes`. In order to be compatible with current codes, Please make sure `num_classes == len(custom_classes) + 1`.
   - The new class `0` corresponds to original class `0`. The new class `i`(i > 0) corresponds to original class `custom_classes[i-1]`.
   - There are three `num_classes` in ava config, `model -> roi_head -> bbox_head -> num_classes`, `data -> train -> num_classes` and `data -> val -> num_classes`.
   - If `num_classes <= 5`, input arg `topk` of `BBoxHeadAVA` should be modified. The default value of `topk` is `(3, 5)`, and all elements of `topk` must be smaller than `num_classes`.
@@ -127,3 +120,26 @@ python tools/test.py configs/detection/ava/slowonly_kinetics_pretrained_r50_8x8x
 ```
 
 For more details and optional arguments infos, you can refer to **Test a dataset** part in [getting_started](/docs/getting_started.md#test-a-dataset) .
+
+## Citation
+
+<!-- [DATASET] -->
+
+```BibTeX
+@inproceedings{gu2018ava,
+  title={Ava: A video dataset of spatio-temporally localized atomic visual actions},
+  author={Gu, Chunhui and Sun, Chen and Ross, David A and Vondrick, Carl and Pantofaru, Caroline and Li, Yeqing and Vijayanarasimhan, Sudheendra and Toderici, George and Ricco, Susanna and Sukthankar, Rahul and others},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  pages={6047--6056},
+  year={2018}
+}
+```
+
+```BibTeX
+@article{duan2020omni,
+  title={Omni-sourced Webly-supervised Learning for Video Recognition},
+  author={Duan, Haodong and Zhao, Yue and Xiong, Yuanjun and Liu, Wentao and Lin, Dahua},
+  journal={arXiv preprint arXiv:2003.13042},
+  year={2020}
+}
+```

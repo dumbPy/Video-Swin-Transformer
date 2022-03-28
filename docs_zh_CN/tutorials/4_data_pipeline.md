@@ -4,11 +4,12 @@
 
 <!-- TOC -->
 
-- [数据前处理流水线设计](#数据前处理流水线设计)
-  - [数据加载](#数据加载)
-  - [数据预处理](#数据预处理)
-  - [数据格式化](#数据格式化)
-- [扩展和使用自定义流水线](#扩展和使用自定义流水线)
+- [教程 4：如何设计数据处理流程](#教程-4如何设计数据处理流程)
+  - [数据前处理流水线设计](#数据前处理流水线设计)
+    - [数据加载](#数据加载)
+    - [数据预处理](#数据预处理)
+    - [数据格式化](#数据格式化)
+  - [扩展和使用自定义流水线](#扩展和使用自定义流水线)
 
 <!-- TOC -->
 
@@ -24,7 +25,7 @@
 我们在下图中展示了一个典型的流水线。 蓝色块是流水线操作。
 随着流水线的深入，每个操作都可以向结果字典添加新键（标记为绿色）或更新现有键（标记为橙色）。
 
-![流水线](../imgs/data_pipeline.png)
+![流水线](https://github.com/open-mmlab/mmaction2/raw/master/resources/data_pipeline.png)
 
 这些操作分为数据加载，数据预处理和数据格式化。
 
@@ -60,7 +61,6 @@ val_pipeline = [
     dict(type='RawFrameDecode', io_backend='disk'),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='CenterCrop', crop_size=224),
-    dict(type='Flip', flip_ratio=0),
     dict(type='Normalize', **img_norm_cfg),
     dict(type='FormatShape', input_format='NCHW'),
     dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
@@ -76,7 +76,6 @@ test_pipeline = [
     dict(type='RawFrameDecode', io_backend='disk'),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='TenCrop', crop_size=224),
-    dict(type='Flip', flip_ratio=0),
     dict(type='Normalize', **img_norm_cfg),
     dict(type='FormatShape', input_format='NCHW'),
     dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
@@ -190,11 +189,6 @@ train_pipeline = [
 - 更新: imgs
 
 `TenCrop`
-
-- 新增: crop_bbox, img_shape
-- 更新: imgs
-
-`MultiGroupCrop`
 
 - 新增: crop_bbox, img_shape
 - 更新: imgs

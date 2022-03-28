@@ -217,7 +217,7 @@ which is convenient to conduct various experiments.
     load_from = None  # load models as a pre-trained model from a given path. This will not resume training
     resume_from = None  # Resume checkpoints from a given path, the training will be resumed from the epoch when the checkpoint's is saved
     workflow = [('train', 1)]  # Workflow for runner. [('train', 1)] means there is only one workflow and the workflow named 'train' is executed once
-    output_config = dict(  # Config of localization ouput
+    output_config = dict(  # Config of localization output
         out=f'{work_dir}/results.json',  # Path to output file
         output_format='json')  # File format of output file
     ```
@@ -370,7 +370,7 @@ which is convenient to conduct various experiments.
     ]
     data = dict(  # Config of data
         videos_per_gpu=32,  # Batch size of each single GPU
-        workers_per_gpu=4,  # Workers to pre-fetch data for each single GPU
+        workers_per_gpu=2,  # Workers to pre-fetch data for each single GPU
         train_dataloader=dict(  # Additional config of train dataloader
             drop_last=True),  # Whether to drop out the last batch of data in training
         val_dataloader=dict(  # Additional config of validation dataloader
@@ -593,7 +593,7 @@ We incorporate modular design into our config system, which is convenient to con
 
     data = dict(  # Config of data
         videos_per_gpu=16,  # Batch size of each single GPU
-        workers_per_gpu=4,  # Workers to pre-fetch data for each single GPU
+        workers_per_gpu=2,  # Workers to pre-fetch data for each single GPU
         val_dataloader=dict(   # Additional config of validation dataloader
             videos_per_gpu=1),  # Batch size of each single GPU during evaluation
         train=dict(   # Training dataset config
@@ -715,7 +715,6 @@ val_pipeline = [
     dict(type='RawFrameDecode'),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='CenterCrop', crop_size=224),
-    dict(type='Flip', flip_ratio=0),
     dict(type='Normalize', **img_norm_cfg),
     dict(type='FormatShape', input_format='NCTHW'),
     dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
@@ -731,7 +730,6 @@ test_pipeline = [
     dict(type='RawFrameDecode'),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='ThreeCrop', crop_size=256),
-    dict(type='Flip', flip_ratio=0),
     dict(type='Normalize', **img_norm_cfg),
     dict(type='FormatShape', input_format='NCTHW'),
     dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
@@ -740,7 +738,7 @@ test_pipeline = [
 
 data = dict(
     videos_per_gpu=8,
-    workers_per_gpu=4,
+    workers_per_gpu=2,
     train=dict(
         type=dataset_type,
         ann_file=ann_file_train,

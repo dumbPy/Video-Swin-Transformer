@@ -12,6 +12,8 @@
   - [Jester](/tools/data/jester/README.md) \[ [Homepage](https://20bn.com/datasets/jester/v1) \]
   - [GYM](/tools/data/gym/README.md) \[ [Homepage](https://sdolivia.github.io/FineGym/) \]
   - [ActivityNet](/tools/data/activitynet/README.md) \[ [Homepage](http://activity-net.org/) \]
+  - [Diving48](/tools/data/diving48/README.md) \[ [Homepage](http://www.svcl.ucsd.edu/projects/resound/dataset.html) \]
+  - [OmniSource](/tools/data/omnisource/README.md) \[ [Homepage](https://kennymckormick.github.io/omnisource/) \]
 
 - Temporal Action Detection
   - [ActivityNet](/tools/data/activitynet/README.md) \[ [Homepage](http://activity-net.org/) \]
@@ -21,6 +23,9 @@
   - [AVA](/tools/data/ava/README.md) \[ [Homepage](https://research.google.com/ava/index.html) \]
   - [UCF101-24](/tools/data/ucf101_24/README.md) \[ [Homepage](http://www.thumos.info/download.html) \]
   - [JHMDB](/tools/data/jhmdb/README.md) \[ [Homepage](http://jhmdb.is.tue.mpg.de/) \]
+
+- Skeleton-based Action Recognition
+  - [PoseC3D Skeleton Dataset](/tools/data/skeleton/README.md) \[ [Homepage](https://kennymckormick.github.io/posec3d/) \]
 
 The supported datasets are listed above.
 We provide shell scripts for data preparation under the path `$MMACTION2/tools/data/`.

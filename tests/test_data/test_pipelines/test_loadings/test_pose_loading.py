@@ -1,13 +1,18 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 import copy as cp
+import os.path as osp
+import tempfile
 from collections import defaultdict
 
 import numpy as np
 import pytest
 from mmcv import dump
+from mmcv.utils import assert_dict_has_keys
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 from mmaction.datasets.pipelines import (GeneratePoseTarget, LoadKineticsPose,
-                                         PoseDecode, UniformSampleFrames)
+                                         PaddingWithLoop, PoseDecode,
+                                         PoseNormalize, UniformSampleFrames)
 
 
 class TestPoseLoading:
@@ -128,84 +133,86 @@ class TestPoseLoading:
             max_val = max(cnt.values())
             return [k for k in cnt if cnt[k] == max_val], max_val
 
-        filename = '/tmp/tmp.pkl'
-        total_frames = 100
-        img_shape = (224, 224)
-        frame_inds = np.random.choice(range(100), size=120)
-        frame_inds.sort()
-        anno_flag = np.random.random(120) > 0.1
-        anno_inds = np.array([i for i, f in enumerate(anno_flag) if f])
-        kp = np.random.random([120, 17, 3])
-        dump(kp, filename)
-        results = dict(
-            filename=filename,
-            total_frames=total_frames,
-            img_shape=img_shape,
-            frame_inds=frame_inds)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filename = osp.join(tmpdir, 'tmp.pkl')
+            total_frames = 100
+            img_shape = (224, 224)
+            frame_inds = np.random.choice(range(100), size=120)
+            frame_inds.sort()
+            anno_flag = np.random.random(120) > 0.1
+            anno_inds = np.array([i for i, f in enumerate(anno_flag) if f])
+            kp = np.random.random([120, 17, 3])
+            dump(kp, filename)
+            results = dict(
+                filename=filename,
+                total_frames=total_frames,
+                img_shape=img_shape,
+                frame_inds=frame_inds)
 
-        inp = cp.deepcopy(results)
+            inp = cp.deepcopy(results)
 
-        with pytest.raises(NotImplementedError):
-            LoadKineticsPose(squeeze=True, max_person=100, source='xxx')
+            with pytest.raises(NotImplementedError):
+                LoadKineticsPose(squeeze=True, max_person=100, source='xxx')
 
-        load_kinetics_pose = LoadKineticsPose(
-            squeeze=True, max_person=100, source='openpose')
+            load_kinetics_pose = LoadKineticsPose(
+                squeeze=True, max_person=100, source='openpose')
 
-        assert str(load_kinetics_pose) == ('LoadKineticsPose(io_backend=disk, '
-                                           'squeeze=True, max_person=100, '
-                                           "keypoint_weight={'face': 1, "
-                                           "'torso': 2, 'limb': 3}, "
-                                           'source=openpose, kwargs={})')
-        return_results = load_kinetics_pose(inp)
-        assert return_results['keypoint'].shape[:-1] == \
-            return_results['keypoint_score'].shape
+            assert str(load_kinetics_pose) == (
+                'LoadKineticsPose(io_backend=disk, '
+                'squeeze=True, max_person=100, '
+                "keypoint_weight={'face': 1, "
+                "'torso': 2, 'limb': 3}, "
+                'source=openpose, kwargs={})')
+            return_results = load_kinetics_pose(inp)
+            assert return_results['keypoint'].shape[:-1] == \
+                return_results['keypoint_score'].shape
 
-        num_person = return_results['keypoint'].shape[0]
-        num_frame = return_results['keypoint'].shape[1]
-        assert num_person == get_mode(frame_inds)[1]
-        assert np.max(return_results['keypoint']) > 1
-        assert num_frame == len(set(frame_inds))
+            num_person = return_results['keypoint'].shape[0]
+            num_frame = return_results['keypoint'].shape[1]
+            assert num_person == get_mode(frame_inds)[1]
+            assert np.max(return_results['keypoint']) > 1
+            assert num_frame == len(set(frame_inds))
 
-        inp = cp.deepcopy(results)
-        load_kinetics_pose = LoadKineticsPose(
-            squeeze=False, max_person=100, source='openpose')
-        return_results = load_kinetics_pose(inp)
-        assert return_results['keypoint'].shape[:-1] == \
-            return_results['keypoint_score'].shape
+            inp = cp.deepcopy(results)
+            load_kinetics_pose = LoadKineticsPose(
+                squeeze=False, max_person=100, source='openpose')
+            return_results = load_kinetics_pose(inp)
+            assert return_results['keypoint'].shape[:-1] == \
+                return_results['keypoint_score'].shape
 
-        num_person = return_results['keypoint'].shape[0]
-        num_frame = return_results['keypoint'].shape[1]
-        assert num_person == get_mode(frame_inds)[1]
-        assert np.max(return_results['keypoint']) > 1
-        assert num_frame == total_frames
+            num_person = return_results['keypoint'].shape[0]
+            num_frame = return_results['keypoint'].shape[1]
+            assert num_person == get_mode(frame_inds)[1]
+            assert np.max(return_results['keypoint']) > 1
+            assert num_frame == total_frames
 
-        inp = cp.deepcopy(results)
-        inp['anno_inds'] = anno_inds
-        load_kinetics_pose = LoadKineticsPose(
-            squeeze=True, max_person=100, source='mmpose')
-        return_results = load_kinetics_pose(inp)
-        assert return_results['keypoint'].shape[:-1] == \
-            return_results['keypoint_score'].shape
+            inp = cp.deepcopy(results)
+            inp['anno_inds'] = anno_inds
+            load_kinetics_pose = LoadKineticsPose(
+                squeeze=True, max_person=100, source='mmpose')
+            return_results = load_kinetics_pose(inp)
+            assert return_results['keypoint'].shape[:-1] == \
+                return_results['keypoint_score'].shape
 
-        num_person = return_results['keypoint'].shape[0]
-        num_frame = return_results['keypoint'].shape[1]
-        assert num_person == get_mode(frame_inds[anno_inds])[1]
-        assert np.max(return_results['keypoint']) <= 1
-        assert num_frame == len(set(frame_inds[anno_inds]))
+            num_person = return_results['keypoint'].shape[0]
+            num_frame = return_results['keypoint'].shape[1]
+            assert num_person == get_mode(frame_inds[anno_inds])[1]
+            assert np.max(return_results['keypoint']) <= 1
+            assert num_frame == len(set(frame_inds[anno_inds]))
 
-        inp = cp.deepcopy(results)
-        inp['anno_inds'] = anno_inds
-        load_kinetics_pose = LoadKineticsPose(
-            squeeze=True, max_person=2, source='mmpose')
-        return_results = load_kinetics_pose(inp)
-        assert return_results['keypoint'].shape[:-1] == \
-            return_results['keypoint_score'].shape
+            inp = cp.deepcopy(results)
+            inp['anno_inds'] = anno_inds
+            load_kinetics_pose = LoadKineticsPose(
+                squeeze=True, max_person=2, source='mmpose')
+            return_results = load_kinetics_pose(inp)
+            assert return_results['keypoint'].shape[:-1] == \
+                return_results['keypoint_score'].shape
 
-        num_person = return_results['keypoint'].shape[0]
-        num_frame = return_results['keypoint'].shape[1]
-        assert num_person <= 2
-        assert np.max(return_results['keypoint']) <= 1
-        assert num_frame == len(set(frame_inds[anno_inds]))
+            num_person = return_results['keypoint'].shape[0]
+            num_frame = return_results['keypoint'].shape[1]
+            assert num_person <= 2
+            assert np.max(return_results['keypoint']) <= 1
+            assert num_frame == len(set(frame_inds[anno_inds]))
 
     @staticmethod
     def test_generate_pose_target():
@@ -350,3 +357,35 @@ class TestPoseLoading:
             skeletons=((0, 1), (1, 2), (0, 2)))
         return_results = generate_pose_target(results)
         assert_array_almost_equal(return_results['imgs'], 0)
+
+    @staticmethod
+    def test_padding_with_loop():
+        results = dict(total_frames=3)
+        sampling = PaddingWithLoop(clip_len=6)
+        sampling_results = sampling(results)
+        assert sampling_results['clip_len'] == 6
+        assert sampling_results['frame_interval'] is None
+        assert sampling_results['num_clips'] == 1
+        assert_array_equal(sampling_results['frame_inds'],
+                           np.array([0, 1, 2, 0, 1, 2]))
+
+    @staticmethod
+    def test_pose_normalize():
+        target_keys = ['keypoint', 'keypoint_norm_cfg']
+        keypoints = np.random.randn(3, 300, 17, 2)
+        results = dict(keypoint=keypoints)
+        pose_normalize = PoseNormalize(
+            mean=[960., 540., 0.5],
+            min_value=[0., 0., 0.],
+            max_value=[1920, 1080, 1.])
+        normalize_results = pose_normalize(results)
+        assert assert_dict_has_keys(normalize_results, target_keys)
+        check_pose_normalize(keypoints, normalize_results['keypoint'],
+                             normalize_results['keypoint_norm_cfg'])
+
+
+def check_pose_normalize(origin_keypoints, result_keypoints, norm_cfg):
+    target_keypoints = result_keypoints.copy()
+    target_keypoints *= (norm_cfg['max_value'] - norm_cfg['min_value'])
+    target_keypoints += norm_cfg['mean']
+    assert_array_almost_equal(origin_keypoints, target_keypoints, decimal=4)

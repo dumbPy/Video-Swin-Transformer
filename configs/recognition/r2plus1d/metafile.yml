@@ -1,6 +1,9 @@
 Collections:
 - Name: R2Plus1D
   README: configs/recognition/r2plus1d/README.md
+  Paper:
+    URL: https://arxiv.org/abs/1711.11248
+    Title: A Closer Look at Spatiotemporal Convolutions for Action Recognition
 Models:
 - Config: configs/recognition/r2plus1d/r2plus1d_r34_8x8x1_180e_kinetics400_rgb.py
   In Collection: R2Plus1D
@@ -8,6 +11,7 @@ Models:
     Architecture: ResNet34
     Batch Size: 8
     Epochs: 180
+    FLOPs: 53175572992
     Parameters: 63759281
     Pretrained: None
     Resolution: short-side 256
@@ -18,8 +22,8 @@ Models:
   Results:
   - Dataset: Kinetics-400
     Metrics:
-      top1 acc: 67.3
-      top5 acc: 87.65
+      Top 1 Accuracy: 67.3
+      Top 5 Accuracy: 87.65
     Task: Action Recognition
   Training Json Log: https://download.openmmlab.com/mmaction/recognition/r2plus1d/r2plus1d_r34_256p_8x8x1_180e_kinetics400_rgb/20200728_021421.log.json
   Training Log: https://download.openmmlab.com/mmaction/recognition/r2plus1d/r2plus1d_r34_256p_8x8x1_180e_kinetics400_rgb/20200728_021421.log
@@ -30,6 +34,7 @@ Models:
     Architecture: ResNet34
     Batch Size: 16
     Epochs: 180
+    FLOPs: 53175572992
     Parameters: 63759281
     Pretrained: None
     Resolution: short-side 256
@@ -40,8 +45,8 @@ Models:
   Results:
   - Dataset: Kinetics-400
     Metrics:
-      top1 acc: 67.3
-      top5 acc: 87.8
+      Top 1 Accuracy: 67.3
+      Top 5 Accuracy: 87.8
     Task: Action Recognition
   Training Json Log: https://download.openmmlab.com/mmaction/recognition/r2plus1d/r2plus1d_r34_video_8x8x1_180e_kinetics400_rgb/20200724_201360.log
   Training Log: https://download.openmmlab.com/mmaction/recognition/r2plus1d/r2plus1d_r34_video_8x8x1_180e_kinetics400_rgb/20200724_201360.log.json
@@ -52,6 +57,7 @@ Models:
     Architecture: ResNet34
     Batch Size: 8
     Epochs: 180
+    FLOPs: 53175572992
     Parameters: 63759281
     Pretrained: None
     Resolution: short-side 320
@@ -62,8 +68,8 @@ Models:
   Results:
   - Dataset: Kinetics-400
     Metrics:
-      top1 acc: 68.68
-      top5 acc: 88.36
+      Top 1 Accuracy: 68.68
+      Top 5 Accuracy: 88.36
     Task: Action Recognition
   Training Json Log: https://download.openmmlab.com/mmaction/recognition/r2plus1d/r2plus1d_r34_8x8x1_180e_kinetics400_rgb/r2plus1d_r34_8x8_69.58_88.36.log.json
   Training Log: https://download.openmmlab.com/mmaction/recognition/r2plus1d/r2plus1d_r34_8x8x1_180e_kinetics400_rgb/r21d_8x8.log
@@ -74,6 +80,7 @@ Models:
     Architecture: ResNet34
     Batch Size: 6
     Epochs: 180
+    FLOPs: 212701677568
     Parameters: 63759281
     Pretrained: None
     Resolution: short-side 320
@@ -84,8 +91,8 @@ Models:
   Results:
   - Dataset: Kinetics-400
     Metrics:
-      top1 acc: 74.6
-      top5 acc: 91.59
+      Top 1 Accuracy: 74.6
+      Top 5 Accuracy: 91.59
     Task: Action Recognition
   Training Json Log: https://download.openmmlab.com/mmaction/recognition/r2plus1d/r2plus1d_r34_32x2x1_180e_kinetics400_rgb/r2plus1d_r34_32x2_74.6_91.6.log.json
   Training Log: https://download.openmmlab.com/mmaction/recognition/r2plus1d/r2plus1d_r34_32x2x1_180e_kinetics400_rgb/r21d_32x2.log

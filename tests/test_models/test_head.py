@@ -1,3 +1,4 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 import os.path as osp
 import tempfile
 from unittest.mock import Mock, patch
@@ -9,8 +10,9 @@ import torch.nn as nn
 
 import mmaction
 from mmaction.models import (ACRNHead, AudioTSNHead, BBoxHeadAVA, FBOHead,
-                             I3DHead, LFBInferHead, SlowFastHead, TPNHead,
-                             TRNHead, TSMHead, TSNHead, X3DHead)
+                             I3DHead, LFBInferHead, SlowFastHead, STGCNHead,
+                             TimeSformerHead, TPNHead, TRNHead, TSMHead,
+                             TSNHead, X3DHead)
 from .base import generate_backbone_demo_inputs
 
 
@@ -59,11 +61,6 @@ def test_bbox_head_ava():
     ret, _ = bbox_head(input)
     assert ret.shape == (3, 4)
 
-    bbox_head = BBoxHeadAVA()
-    bbox_head.init_weights()
-    bbox_head = BBoxHeadAVA(temporal_pool_type='max', spatial_pool_type='avg')
-    bbox_head.init_weights()
-
     cls_score = torch.tensor(
         [[0.568, -0.162, 0.273, -0.390, 0.447, 0.102, -0.409],
          [2.388, 0.609, 0.369, 1.630, -0.808, -0.212, 0.296],
@@ -74,6 +71,32 @@ def test_bbox_head_ava():
                            [0., 1., 0., 0., 1., 0., 1.],
                            [0., 0., 1., 1., 0., 0., 1.]])
     label_weights = torch.tensor([1., 1., 1., 1.])
+
+    # Test topk_to_matrix()
+    assert torch.equal(
+        BBoxHeadAVA.topk_to_matrix(cls_score[:, 1:], 1),
+        torch.tensor([[0, 0, 0, 1, 0, 0], [0, 0, 1, 0, 0, 0],
+                      [0, 0, 0, 0, 1, 0], [0, 0, 0, 1, 0, 0]],
+                     dtype=bool))
+    assert torch.equal(
+        BBoxHeadAVA.topk_to_matrix(cls_score[:, 1:], 2),
+        torch.tensor([[0, 1, 0, 1, 0, 0], [1, 0, 1, 0, 0, 0],
+                      [0, 0, 0, 1, 1, 0], [0, 0, 0, 1, 0, 1]],
+                     dtype=bool))
+    assert torch.equal(
+        BBoxHeadAVA.topk_to_matrix(cls_score[:, 1:], 3),
+        torch.tensor([[0, 1, 0, 1, 1, 0], [1, 1, 1, 0, 0, 0],
+                      [0, 0, 0, 1, 1, 1], [1, 0, 0, 1, 0, 1]],
+                     dtype=bool))
+    assert torch.equal(
+        BBoxHeadAVA.topk_to_matrix(cls_score[:, 1:], 6),
+        torch.ones([4, 6], dtype=bool))
+
+    # Test Multi-Label Loss
+    bbox_head = BBoxHeadAVA()  # Why is this here? isn't this redundant?
+    bbox_head.init_weights()
+    bbox_head = BBoxHeadAVA(temporal_pool_type='max', spatial_pool_type='avg')
+    bbox_head.init_weights()
     losses = bbox_head.loss(
         cls_score=cls_score,
         bbox_pred=None,
@@ -88,6 +111,23 @@ def test_bbox_head_ava():
     assert torch.isclose(losses['recall@top5'], torch.tensor(1.0))
     assert torch.isclose(losses['prec@top5'], torch.tensor(0.45))
 
+    # Test Single-Label Loss
+    bbox_head = BBoxHeadAVA(multilabel=False)
+    losses = bbox_head.loss(
+        cls_score=cls_score,
+        bbox_pred=None,
+        rois=None,
+        labels=labels,
+        label_weights=label_weights)
+    assert torch.isclose(losses['loss_action_cls'], torch.tensor(1.639561))
+    assert torch.isclose(losses['recall@thr=0.5'], torch.tensor(0.25))
+    assert torch.isclose(losses['prec@thr=0.5'], torch.tensor(0.25))
+    assert torch.isclose(losses['recall@top3'], torch.tensor(0.75))
+    assert torch.isclose(losses['prec@top3'], torch.tensor(0.5))
+    assert torch.isclose(losses['recall@top5'], torch.tensor(1.0))
+    assert torch.isclose(losses['prec@top5'], torch.tensor(0.45))
+
+    # Test ROI
     rois = torch.tensor([[0.0, 0.1, 0.2, 0.3, 0.4], [0.0, 0.5, 0.6, 0.7, 0.8]])
     rois[1::2] *= 380
     rois[2::2] *= 220
@@ -96,6 +136,7 @@ def test_bbox_head_ava():
     img_shape = (320, 480)
     flip = True
 
+    bbox_head = BBoxHeadAVA(multilabel=True)
     bboxes, scores = bbox_head.get_det_bboxes(
         rois=rois,
         cls_score=cls_score,
@@ -109,6 +150,20 @@ def test_bbox_head_ava():
                           [0.45499998, 0.69875002, 0.58166665, 0.86499995]])))
     assert torch.all(
         torch.isclose(scores, torch.tensor([0.73007441, 0.67436624])))
+
+    bbox_head = BBoxHeadAVA(multilabel=False)
+    bboxes, scores = bbox_head.get_det_bboxes(
+        rois=rois,
+        cls_score=cls_score,
+        img_shape=img_shape,
+        flip=flip,
+        crop_quadruple=crop_quadruple)
+    assert torch.all(
+        torch.isclose(
+            bboxes,
+            torch.tensor([[0.89783341, 0.20043750, 0.89816672, 0.20087500],
+                          [0.45499998, 0.69875002, 0.58166665, 0.86499995]])))
+    assert torch.all(torch.isclose(scores, torch.tensor([0.56636, 0.43364])))
 
 
 def test_x3d_head():
@@ -366,6 +421,23 @@ def test_trn_head():
             relation_type='RelationModlue')
 
 
+def test_timesformer_head():
+    """Test loss method, layer construction, attributes and forward function in
+    timesformer head."""
+    timesformer_head = TimeSformerHead(num_classes=4, in_channels=64)
+    timesformer_head.init_weights()
+
+    assert timesformer_head.num_classes == 4
+    assert timesformer_head.in_channels == 64
+    assert timesformer_head.init_std == 0.02
+
+    input_shape = (2, 64)
+    feat = torch.rand(input_shape)
+
+    cls_scores = timesformer_head(feat)
+    assert cls_scores.shape == torch.Size([2, 4])
+
+
 @patch.object(mmaction.models.LFBInferHead, '__del__', Mock)
 def test_lfb_infer_head():
     """Test layer construction, attributes and forward function in lfb infer
@@ -498,3 +570,39 @@ def test_acrn_head():
     acrn_head = ACRNHead(32, 16, stride=2, num_convs=2)
     new_feat = acrn_head(roi_feat, feat, rois)
     assert new_feat.shape == (4, 16, 1, 8, 8)
+
+
+def test_stgcn_head():
+    """Test loss method, layer construction, attributes and forward function in
+    stgcn head."""
+    with pytest.raises(NotImplementedError):
+        # spatial_type not in ['avg', 'max']
+        stgcn_head = STGCNHead(
+            num_classes=60, in_channels=256, spatial_type='min')
+        stgcn_head.init_weights()
+
+    # spatial_type='avg'
+    stgcn_head = STGCNHead(num_classes=60, in_channels=256, spatial_type='avg')
+    stgcn_head.init_weights()
+
+    assert stgcn_head.num_classes == 60
+    assert stgcn_head.in_channels == 256
+
+    input_shape = (2, 256, 75, 17)
+    feat = torch.rand(input_shape)
+
+    cls_scores = stgcn_head(feat)
+    assert cls_scores.shape == torch.Size([1, 60])
+
+    # spatial_type='max'
+    stgcn_head = STGCNHead(num_classes=60, in_channels=256, spatial_type='max')
+    stgcn_head.init_weights()
+
+    assert stgcn_head.num_classes == 60
+    assert stgcn_head.in_channels == 256
+
+    input_shape = (2, 256, 75, 17)
+    feat = torch.rand(input_shape)
+
+    cls_scores = stgcn_head(feat)
+    assert cls_scores.shape == torch.Size([1, 60])

@@ -1,3 +1,4 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 from .collect_env import collect_env
 from .decorators import import_module_error_class, import_module_error_func
 from .gradcam_utils import GradCAM
@@ -7,9 +8,11 @@ from .module_hooks import register_module_hooks
 from .precise_bn import PreciseBNHook
 from .optimizer import DistOptimizerHook
 
+from .setup_env import setup_multi_processes
 
 __all__ = [
     'get_root_logger', 'collect_env', 'get_random_string', 'get_thread_id',
     'get_shm_dir', 'GradCAM', 'PreciseBNHook', 'import_module_error_class',
-    'import_module_error_func', 'register_module_hooks', 'DistOptimizerHook'
+    'import_module_error_func', 'register_module_hooks', 'DistOptimizerHook',
+    'setup_multi_processes'
 ]

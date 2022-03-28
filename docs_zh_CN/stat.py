@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (c) OpenMMLab. All rights reserved.
 import functools as func
 import glob
 import re
@@ -26,6 +27,13 @@ for f in files:
     # title
     title = content.split('\n')[0].replace('#', '')
 
+    # skip IMAGE and ABSTRACT tags
+    content = [
+        x for x in content.split('\n')
+        if 'IMAGE' not in x and 'ABSTRACT' not in x
+    ]
+    content = '\n'.join(content)
+
     # count papers
     papers = set(
         (papertype, titlecase.titlecase(paper.lower().strip()))
@@ -39,7 +47,7 @@ for f in files:
         print(p)
         q = p.replace('\\', '\\\\').replace('?', '\\?')
         paperlinks[p] = ' '.join(
-            (f'[⇨]({splitext(basename(f))[0]}.html#{anchor(paperlink)})'
+            (f'[->]({splitext(basename(f))[0]}.html#{anchor(paperlink)})'
              for paperlink in re.findall(
                  rf'\btitle\s*=\s*{{\s*{q}\s*}}.*?\n## (.*?)\s*[,;]?\s*\n',
                  revcontent, re.DOTALL | re.IGNORECASE)))
@@ -119,7 +127,7 @@ for f in files:
         print(p)
         q = p.replace('\\', '\\\\').replace('?', '\\?')
         paperlinks[p] = ', '.join(
-            (f'[{p.strip()} ⇨]({splitext(basename(f))[0]}.html#{anchor(p)})'
+            (f'[{p.strip()} ->]({splitext(basename(f))[0]}.html#{anchor(p)})'
              for p in re.findall(
                  rf'\btitle\s*=\s*{{\s*{q}\s*}}.*?\n## (.*?)\s*[,;]?\s*\n',
                  revcontent, re.DOTALL | re.IGNORECASE)))

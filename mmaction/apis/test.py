@@ -1,3 +1,4 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 import os.path as osp
 import pickle
 import shutil
@@ -11,8 +12,8 @@ import torch.distributed as dist
 from mmcv.runner import get_dist_info
 
 try:
-    from mmcv.engine import (single_gpu_test, multi_gpu_test,
-                             collect_results_gpu, collect_results_cpu)
+    from mmcv.engine import (collect_results_cpu, collect_results_gpu,
+                             multi_gpu_test, single_gpu_test)
     from_mmcv = True
 except (ImportError, ModuleNotFoundError):
     warnings.warn(
@@ -131,12 +132,13 @@ if not from_mmcv:
             dist.broadcast(dir_tensor, 0)
             tmpdir = dir_tensor.cpu().numpy().tobytes().decode().rstrip()
         else:
+            tmpdir = osp.join(tmpdir, '.dist_test')
             mmcv.mkdir_or_exist(tmpdir)
         # synchronizes all processes to make sure tmpdir exist
         dist.barrier()
         # dump the part result to the dir
         mmcv.dump(result_part, osp.join(tmpdir, f'part_{rank}.pkl'))
-        # synchronizes all processes for loding pickle file
+        # synchronizes all processes for loading pickle file
         dist.barrier()
         # collect all parts
         if rank != 0:

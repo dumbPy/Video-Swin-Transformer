@@ -1,3 +1,4 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 import argparse
 import time
 from collections import deque
@@ -22,7 +23,7 @@ LINETYPE = 1
 
 EXCLUED_STEPS = [
     'OpenCVInit', 'OpenCVDecode', 'DecordInit', 'DecordDecode', 'PyAVInit',
-    'PyAVDecode', 'RawFrameDecode', 'FrameSelector'
+    'PyAVDecode', 'RawFrameDecode'
 ]
 
 

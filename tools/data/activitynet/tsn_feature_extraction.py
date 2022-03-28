@@ -1,3 +1,4 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 import argparse
 import os
 import os.path as osp
@@ -60,7 +61,7 @@ def main():
             clip_len=args.clip_len,
             frame_interval=args.frame_interval,
             start_index=0),
-        dict(type='FrameSelector'),
+        dict(type='RawFrameDecode'),
         dict(type='Resize', scale=(-1, 256)),
         dict(type='CenterCrop', crop_size=256),
         dict(type='Normalize', **args.img_norm_cfg),
@@ -109,7 +110,7 @@ def main():
         assert output_file.endswith('.pkl')
         length = int(length)
 
-        # prepare a psuedo sample
+        # prepare a pseudo sample
         tmpl = dict(
             frame_dir=frame_dir,
             total_frames=length,

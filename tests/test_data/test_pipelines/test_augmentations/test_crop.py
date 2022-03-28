@@ -1,10 +1,11 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 import numpy as np
 import pytest
 from mmcv.utils import assert_dict_has_keys
 
-from mmaction.datasets.pipelines import (CenterCrop, MultiGroupCrop,
-                                         MultiScaleCrop, RandomCrop,
-                                         RandomResizedCrop, TenCrop, ThreeCrop)
+from mmaction.datasets.pipelines import (CenterCrop, MultiScaleCrop,
+                                         RandomCrop, RandomResizedCrop,
+                                         TenCrop, ThreeCrop)
 from .base import check_crop
 
 
@@ -129,10 +130,6 @@ class TestCrops:
             MultiScaleCrop('224')
 
         with pytest.raises(TypeError):
-            # input_size must be int or tuple of int
-            MultiScaleCrop([224, 224])
-
-        with pytest.raises(TypeError):
             # scales must be tuple.
             MultiScaleCrop(
                 224, scales=[
@@ -214,10 +211,6 @@ class TestCrops:
             # crop_size must be int or tuple of int
             CenterCrop('224')
 
-        with pytest.raises(TypeError):
-            # crop_size must be int or tuple of int
-            CenterCrop([224, 224])
-
         # center crop with crop_size 224
         # add kps in test_center_crop
         imgs = list(np.random.rand(2, 240, 320, 3))
@@ -250,10 +243,6 @@ class TestCrops:
         with pytest.raises(TypeError):
             # crop_size must be int or tuple of int
             ThreeCrop('224')
-
-        with pytest.raises(TypeError):
-            # crop_size must be int or tuple of int
-            ThreeCrop([224, 224])
 
         # three crop with crop_size 120
         imgs = list(np.random.rand(2, 240, 120, 3))
@@ -290,10 +279,6 @@ class TestCrops:
             # crop_size must be int or tuple of int
             TenCrop('224')
 
-        with pytest.raises(TypeError):
-            # crop_size must be int or tuple of int
-            TenCrop([224, 224])
-
         # ten crop with crop_size 256
         imgs = list(np.random.rand(2, 256, 256, 3))
         results = dict(imgs=imgs)
@@ -307,42 +292,3 @@ class TestCrops:
 
         assert repr(ten_crop) == (f'{ten_crop.__class__.__name__}'
                                   f'(crop_size={(224, 224)})')
-
-    @staticmethod
-    def test_multi_group_crop():
-        with pytest.raises(TypeError):
-            # crop_size must be int or tuple of int
-            MultiGroupCrop(0.5, 1)
-
-        with pytest.raises(TypeError):
-            # crop_size must be int or tuple of int
-            MultiGroupCrop('224', 1)
-
-        with pytest.raises(TypeError):
-            # crop_size must be int or tuple of int
-            MultiGroupCrop([224, 224], 1)
-
-        with pytest.raises(TypeError):
-            # groups must be int
-            MultiGroupCrop(224, '1')
-
-        with pytest.raises(ValueError):
-            # groups must be positive
-            MultiGroupCrop(224, 0)
-
-        target_keys = ['imgs', 'crop_bbox', 'img_shape']
-
-        # multi_group_crop with crop_size 224, groups 3
-        imgs = list(np.random.rand(2, 256, 341, 3))
-        results = dict(imgs=imgs)
-        multi_group_crop = MultiGroupCrop(224, 3)
-        multi_group_crop_result = multi_group_crop(results)
-        assert assert_dict_has_keys(multi_group_crop_result, target_keys)
-        assert check_crop(imgs, multi_group_crop_result['imgs'],
-                          multi_group_crop_result['crop_bbox'],
-                          multi_group_crop.groups)
-        assert multi_group_crop_result['img_shape'] == (224, 224)
-
-        assert repr(multi_group_crop) == (
-            f'{multi_group_crop.__class__.__name__}'
-            f'(crop_size={(224, 224)}, groups={3})')

@@ -1,3 +1,4 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 import warnings
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
@@ -103,6 +104,7 @@ class BaseRecognizer(nn.Module, metaclass=ABCMeta):
         self.blending = None
         if train_cfg is not None and 'blending' in train_cfg:
             from mmcv.utils import build_from_cfg
+
             from mmaction.datasets.builder import BLENDINGS
             self.blending = build_from_cfg(train_cfg['blending'], BLENDINGS)
 
@@ -153,6 +155,11 @@ class BaseRecognizer(nn.Module, metaclass=ABCMeta):
             x = self.backbone.features(imgs)
         elif self.backbone_from == 'timm':
             x = self.backbone.forward_features(imgs)
+        elif self.backbone_from == 'mmcls':
+            x = self.backbone(imgs)
+            if isinstance(x, tuple):
+                assert len(x) == 1
+                x = x[0]
         else:
             x = self.backbone(imgs)
         return x

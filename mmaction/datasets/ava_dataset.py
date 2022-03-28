@@ -1,3 +1,4 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 import copy
 import os
 import os.path as osp
@@ -61,6 +62,10 @@ class AVADataset(BaseDataset):
             Default: None.
         filename_tmpl (str): Template for each filename.
             Default: 'img_{:05}.jpg'.
+        start_index (int): Specify a start index for frames in consideration of
+            different filename format. However, when taking videos as input,
+            it should be set to 0, since frames loaded from videos count
+            from 0. Default: 0.
         proposal_file (str): Path to the proposal file like
             ``ava_dense_proposals_{train, val}.FAIR.recall_93.9.pkl``.
             Default: None.
@@ -86,9 +91,8 @@ class AVADataset(BaseDataset):
             default value is referred from the official website. Default: 902.
         timestamp_end (int): The end point of included timestamps. The
             default value is referred from the official website. Default: 1798.
+        fps (int): Overrides the default FPS for the dataset. Default: 30.
     """
-
-    _FPS = 30
 
     def __init__(self,
                  ann_file,
@@ -96,6 +100,7 @@ class AVADataset(BaseDataset):
                  pipeline,
                  label_file=None,
                  filename_tmpl='img_{:05}.jpg',
+                 start_index=0,
                  proposal_file=None,
                  person_det_score_thr=0.9,
                  num_classes=81,
@@ -105,9 +110,11 @@ class AVADataset(BaseDataset):
                  modality='RGB',
                  num_max_proposals=1000,
                  timestamp_start=900,
-                 timestamp_end=1800):
+                 timestamp_end=1800,
+                 fps=30):
         # since it inherits from `BaseDataset`, some arguments
         # should be assigned before performing `load_annotations()`
+        self._FPS = fps  # Keep this as standard
         self.custom_classes = custom_classes
         if custom_classes is not None:
             assert num_classes == len(custom_classes) + 1
@@ -134,6 +141,7 @@ class AVADataset(BaseDataset):
             pipeline,
             data_prefix,
             test_mode,
+            start_index=start_index,
             modality=modality,
             num_classes=num_classes)
 
@@ -164,15 +172,18 @@ class AVADataset(BaseDataset):
         while len(img_records) > 0:
             img_record = img_records[0]
             num_img_records = len(img_records)
-            selected_records = list(
-                filter(
-                    lambda x: np.array_equal(x['entity_box'], img_record[
-                        'entity_box']), img_records))
+
+            selected_records = [
+                x for x in img_records
+                if np.array_equal(x['entity_box'], img_record['entity_box'])
+            ]
+
             num_selected_records = len(selected_records)
-            img_records = list(
-                filter(
-                    lambda x: not np.array_equal(x['entity_box'], img_record[
-                        'entity_box']), img_records))
+            img_records = [
+                x for x in img_records if
+                not np.array_equal(x['entity_box'], img_record['entity_box'])
+            ]
+
             assert len(img_records) + num_selected_records == num_img_records
 
             bboxes.append(img_record['entity_box'])

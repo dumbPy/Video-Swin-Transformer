@@ -1,3 +1,4 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 import numpy as np
 import pytest
 from mmcv.utils import assert_dict_has_keys
@@ -159,10 +160,6 @@ class TestLazy:
         with pytest.raises(TypeError):
             # input_size must be int or tuple of int
             MultiScaleCrop('224', lazy=True)
-
-        with pytest.raises(TypeError):
-            # input_size must be int or tuple of int
-            MultiScaleCrop([224, 224], lazy=True)
 
         with pytest.raises(TypeError):
             # scales must be tuple.
@@ -356,10 +353,6 @@ class TestLazy:
         with pytest.raises(TypeError):
             # crop_size must be int or tuple of int
             CenterCrop('224')
-
-        with pytest.raises(TypeError):
-            # crop_size must be int or tuple of int
-            CenterCrop([224, 224])
 
         # center crop with crop_size 224
         imgs = list(np.random.rand(2, 240, 320, 3))

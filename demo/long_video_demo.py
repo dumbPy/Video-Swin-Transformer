@@ -1,3 +1,4 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 import argparse
 import json
 import random
@@ -21,7 +22,7 @@ LINETYPE = 1
 
 EXCLUED_STEPS = [
     'OpenCVInit', 'OpenCVDecode', 'DecordInit', 'DecordDecode', 'PyAVInit',
-    'PyAVDecode', 'RawFrameDecode', 'FrameSelector'
+    'PyAVDecode', 'RawFrameDecode'
 ]
 
 
